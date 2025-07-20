@@ -1,96 +1,204 @@
 const express = require('express');
+const cors = require('cors');
 const http = require('http');
 const socketIo = require('socket.io');
-const cors = require('cors');
-const helmet = require('helmet');
-const compression = require('compression');
-const rateLimit = require('express-rate-limit');
 const morgan = require('morgan');
-require('dotenv').config();
+const path = require('path');
 
+// Express App erstellen
 const app = express();
 const server = http.createServer(app);
+
+// Socket.IO konfigurieren
 const io = socketIo(server, {
   cors: {
-    origin: process.env.FRONTEND_URL || "http://localhost:3000",
-    methods: ["GET", "POST"]
-  }
+    origin: ["http://localhost:3000", "http://127.0.0.1:3000", "http://localhost:3001"],
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    credentials: true,
+    allowedHeaders: ["Content-Type", "Authorization"]
+  },
+  allowEIO3: true
 });
-
-const PORT = process.env.PORT || 3001;
 
 // Middleware
-app.use(helmet());
-app.use(compression());
-app.use(cors());
-app.use(express.json({ limit: '10mb' }));
+app.use(cors({
+  origin: ["http://localhost:3000", "http://127.0.0.1:3000", "http://localhost:3001"],
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"]
+}));
+
+app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(morgan('combined'));
+app.use(morgan('combined')); // Logging
 
-// Rate Limiting
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100 // limit each IP to 100 requests per windowMs
-});
-app.use('/api/', limiter);
+// Server-Variablen
+const PORT = process.env.PORT || 3001;
+let connectedUsers = 0;
+let serverStartTime = Date.now();
 
-// Health Check
+// Health Check Route
 app.get('/health', (req, res) => {
-  res.status(200).json({ 
-    status: 'OK', 
+  const uptime = Math.floor((Date.now() - serverStartTime) / 1000);
+  
+  res.json({
+    status: 'OK',
+    uptime: uptime,
+    version: '1.0.0',
     timestamp: new Date().toISOString(),
-    uptime: process.uptime(),
-    version: process.env.npm_package_version || '1.0.0'
+    connectedUsers: connectedUsers,
+    port: PORT
   });
 });
 
 // API Routes
-app.get('/api', (req, res) => {
-  res.json({ 
-    message: 'Legal Retro Gaming Service API', 
-    version: '1.0.0',
-    endpoints: {
-      health: '/health',
-      api: '/api',
-      auth: '/api/auth',
-      games: '/api/games',
-      users: '/api/users'
-    }
+app.get('/api/status', (req, res) => {
+  res.json({
+    server: 'Legal Retro Gaming Service',
+    status: 'running',
+    users: connectedUsers,
+    uptime: Math.floor((Date.now() - serverStartTime) / 1000)
   });
 });
 
-// Socket.IO für Multiplayer
+// Game-related routes
+app.get('/api/games', (req, res) => {
+  res.json({
+    availableGames: [
+      {
+        id: 'snake',
+        name: 'Snake Game',
+        description: 'Classic Snake game built in React',
+        status: 'available'
+      },
+      {
+        id: 'memory',
+        name: 'Memory Game', 
+        description: 'Test your memory with cards',
+        status: 'available'
+      },
+      {
+        id: 'pong',
+        name: 'Pong Demo',
+        description: 'Simple Pong game simulation',
+        status: 'available'
+      },
+      {
+        id: 'tetris',
+        name: 'Tetris Demo',
+        description: 'Tetris-style block game',
+        status: 'available'
+      }
+    ]
+  });
+});
+
+// Socket.IO Event-Handler
 io.on('connection', (socket) => {
-  console.log('User connected:', socket.id);
+  connectedUsers++;
+  console.log(`User connected: ${socket.id}`);
   
-  socket.on('join-game', (gameId) => {
-    socket.join(gameId);
-    socket.to(gameId).emit('player-joined', socket.id);
-    console.log(`Player ${socket.id} joined game ${gameId}`);
+  // Begrüßung senden
+  socket.emit('welcome', {
+    message: 'Welcome to Legal Retro Gaming Service!',
+    serverId: socket.id,
+    timestamp: new Date().toISOString()
   });
   
-  socket.on('game-action', (data) => {
-    socket.to(data.gameId).emit('game-update', data);
+  // User-Count an alle senden
+  io.emit('player-count', connectedUsers);
+  
+  // Ping-Pong für Latenz-Messung
+  socket.on('ping', (timestamp) => {
+    socket.emit('pong', timestamp);
   });
   
-  socket.on('disconnect', () => {
-    console.log('User disconnected:', socket.id);
+  // Game-Events
+  socket.on('join-game', (gameData) => {
+    console.log(`🎮 User ${socket.id} joined game: ${gameData.gameId}`);
+    socket.join(`game-${gameData.gameId}`);
+    
+    socket.to(`game-${gameData.gameId}`).emit('player-joined', {
+      playerId: socket.id,
+      gameId: gameData.gameId,
+      timestamp: new Date().toISOString()
+    });
+  });
+  
+  socket.on('leave-game', (gameData) => {
+    console.log(`🎮 User ${socket.id} left game: ${gameData.gameId}`);
+    socket.leave(`game-${gameData.gameId}`);
+    
+    socket.to(`game-${gameData.gameId}`).emit('player-left', {
+      playerId: socket.id,
+      gameId: gameData.gameId,
+      timestamp: new Date().toISOString()
+    });
+  });
+  
+  // Game-Input weiterleiten
+  socket.on('game-input', (inputData) => {
+    socket.to(`game-${inputData.gameId}`).emit('player-input', {
+      playerId: socket.id,
+      input: inputData.input,
+      timestamp: new Date().toISOString()
+    });
+  });
+  
+  // Disconnect-Handler
+  socket.on('disconnect', (reason) => {
+    connectedUsers--;
+    console.log(`User disconnected: ${socket.id} (${reason})`);
+    
+    // User-Count aktualisieren
+    io.emit('player-count', connectedUsers);
+  });
+  
+  // Error-Handler
+  socket.on('error', (error) => {
+    console.error(`Socket error for ${socket.id}:`, error);
   });
 });
 
-// Error Handler
+// Error-Handler für Express
 app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).json({ error: 'Something went wrong!' });
+  console.error('Express Error:', err);
+  res.status(500).json({
+    error: 'Internal Server Error',
+    message: err.message
+  });
 });
 
-// 404 Handler
+// 404-Handler
 app.use('*', (req, res) => {
-  res.status(404).json({ error: 'Route not found' });
+  res.status(404).json({
+    error: 'Route not found',
+    path: req.originalUrl
+  });
 });
 
+// Server starten
 server.listen(PORT, () => {
-  console.log(`🎮 Legal Retro Gaming Service running on port ${PORT}`);
-  console.log(`🔗 Health check: http://localhost:${PORT}/health`);
-  console.log(`📡 Socket.IO ready for multiplayer connections`);
-}); 
+  console.log('🎮 Legal Retro Gaming Service running on port ' + PORT);
+  console.log('🔗 Health check: http://localhost:' + PORT + '/health');
+  console.log('📡 Socket.IO ready for multiplayer connections');
+});
+
+// Graceful Shutdown
+process.on('SIGTERM', () => {
+  console.log('🛑 Server shutting down gracefully...');
+  server.close(() => {
+    console.log('✅ Server closed');
+    process.exit(0);
+  });
+});
+
+process.on('SIGINT', () => {
+  console.log('🛑 Server shutting down gracefully...');
+  server.close(() => {
+    console.log('✅ Server closed');
+    process.exit(0);
+  });
+});
+
+module.exports = { app, server, io };
