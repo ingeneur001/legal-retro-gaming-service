@@ -28,7 +28,7 @@ jobs:
     - name: Run tests
       run: |
         cd frontend
-        npm test -- --coverage --passWithNoTests
+        npm test --  --coverage --passWithNoTests --watchAll=false
         
     - name: Build application
       run: |
