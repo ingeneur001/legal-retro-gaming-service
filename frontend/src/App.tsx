@@ -9,6 +9,9 @@ import GameGrid from './components/GameGrid';
 import ConnectionStatus from './components/ConnectionStatus';
 import GamePlayer from './components/GamePlayer';
 
+// USER SYSTEM IMPORT - NEU!
+import { UserProvider } from './components/user/UserManager';
+
 // Global Styles für Retro-Gaming-Theme
 const GlobalStyle = createGlobalStyle`
   @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');
@@ -56,7 +59,7 @@ interface ServerStatusData {
 // Main App Component
 const App: React.FC = () => {
   // State Management
-  const [socket, setSocket] = useState<any>(null);
+  const [, setSocket] = useState<any>(null);
   const [connected, setConnected] = useState(false);
   const [serverStatus, setServerStatus] = useState<ServerStatusData | null>(null);
   const [playerCount, setPlayerCount] = useState(0);
@@ -240,49 +243,52 @@ const App: React.FC = () => {
   return (
     <>
       <GlobalStyle />
-      <AppContainer>
-        {/* Connection Status (Top Right) */}
-        <ConnectionStatus 
-          connected={connected}
-          showDetails={true}
-          serverUrl="localhost:3001"
-          lastPing={lastPing}
-          reconnectAttempts={reconnectAttempts}
-        />
-
-        <MainContent>
-          {/* Header with Navigation */}
-          <Header 
-            title="RETRO ARCADE"
-            subtitle="Legal Gaming Experience"
-            showNavigation={true}
-            activeNavItem={activeNavItem}
-            onNavClick={handleNavigation}
+      {/* USER PROVIDER UMHÜLLT ALLES - HIER IST DIE ÄNDERUNG! */}
+      <UserProvider>
+        <AppContainer>
+          {/* Connection Status (Top Right) */}
+          <ConnectionStatus 
+            connected={connected}
+            showDetails={true}
+            serverUrl="localhost:3001"
+            lastPing={lastPing}
+            reconnectAttempts={reconnectAttempts}
           />
 
-          {/* Server Status Panel */}
-          <ServerStatus 
-            serverStatus={serverStatus}
-            playerCount={playerCount}
-            loading={loading}
-          />
+          <MainContent>
+            {/* Header with Navigation */}
+            <Header 
+              title="RETRO ARCADE"
+              subtitle="Legal Gaming Experience"
+              showNavigation={true}
+              activeNavItem={activeNavItem}
+              onNavClick={handleNavigation}
+            />
 
-          {activeNavItem === 'games' ? (
-            <GamePlayer />
-          ) : (
-            <GameGrid games={gameData} />
-          )}
+            {/* Server Status Panel */}
+            <ServerStatus 
+              serverStatus={serverStatus}
+              playerCount={playerCount}
+              loading={loading}
+            />
 
-          {/* Content basierend auf Navigation */}
-          {activeNavItem === 'games' ? (
-             <div style={{color: '#ff0000', fontSize: '2rem', textAlign: 'center'}}>
-             🔴 NEW LOGIC ACTIVE! 🔴
-             </div>
-          ) : (
-             <GameGrid games={gameData} />
-          )}
-        </MainContent>
-      </AppContainer>
+            {activeNavItem === 'games' ? (
+              <GamePlayer />
+            ) : (
+              <GameGrid games={gameData} />
+            )}
+
+            {/* Content basierend auf Navigation */}
+            {activeNavItem === 'games' ? (
+               <div style={{color: '#ff0000', fontSize: '2rem', textAlign: 'center'}}>
+               🔴 NEW LOGIC ACTIVE! 🔴
+               </div>
+            ) : (
+               <GameGrid games={gameData} />
+            )}
+          </MainContent>
+        </AppContainer>
+      </UserProvider>
     </>
   );
 };

@@ -1,89 +1,4 @@
-import React from 'react';
-import styled, { keyframes } from 'styled-components';
-
-// Animationen
-const pulse = keyframes`
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.05); }
-`;
-
-// Styled Components
-const Card = styled.div`
-  background: linear-gradient(145deg, #1a1a2e 0%, #16213e 100%);
-  border: 2px solid #00ffff;
-  border-radius: 10px;
-  padding: 20px;
-  text-align: center;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  position: relative;
-  overflow: hidden;
-
-  &:hover {
-    transform: translateY(-10px);
-    box-shadow: 0 10px 25px rgba(0, 255, 255, 0.5);
-    animation: ${pulse} 1s infinite;
-  }
-
-  &::before {
-    content: '';
-    position: absolute;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
-    transform: rotate(45deg);
-    transition: all 0.5s;
-    opacity: 0;
-  }
-
-  &:hover::before {
-    animation: ${pulse} 1.5s infinite;
-    opacity: 1;
-  }
-`;
-
-const GameTitle = styled.h3`
-  color: #00ffff;
-  margin-bottom: 10px;
-  font-size: 1.2rem;
-  font-weight: 700;
-`;
-
-const GameDescription = styled.p`
-  color: #cccccc;
-  font-size: 0.9rem;
-  line-height: 1.4;
-  margin-bottom: 15px;
-`;
-
-const PlayButton = styled.button`
-  background: linear-gradient(45deg, #ff6b35, #f7931e);
-  border: none;
-  color: white;
-  padding: 12px 24px;
-  border-radius: 25px;
-  font-family: 'Orbitron', monospace;
-  font-weight: 700;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-
-  &:hover {
-    background: linear-gradient(45deg, #f7931e, #ff6b35);
-    transform: scale(1.1);
-    box-shadow: 0 5px 15px rgba(255, 107, 53, 0.5);
-  }
-
-  &:active {
-    transform: scale(0.95);
-  }
-`;
-
-// Interface für GameCard Props
+// GameCard.tsx - Funktionsfähige Version ohne styled-components
 interface GameCardProps {
   icon: string;
   title: string;
@@ -92,22 +7,125 @@ interface GameCardProps {
   onPlay: () => void;
 }
 
-// GameCard Component
-const GameCard: React.FC<GameCardProps> = ({ 
+const GameCard = ({ 
   icon, 
   title, 
   description, 
   buttonText, 
   onPlay 
-}) => {
+}: GameCardProps) => {
+  
   return (
-    <Card>
-      <GameTitle>{icon} {title}</GameTitle>
-      <GameDescription>{description}</GameDescription>
-      <PlayButton onClick={onPlay}>
+    <div 
+      style={{
+        background: 'linear-gradient(145deg, #1a1a2e 0%, #16213e 100%)',
+        border: '2px solid #00ffff',
+        borderRadius: '10px',
+        padding: '20px',
+        textAlign: 'center',
+        transition: 'all 0.3s ease',
+        position: 'relative',
+        overflow: 'hidden',
+        cursor: 'default',
+        minHeight: '200px',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'space-between'
+      }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.transform = 'translateY(-10px)';
+        e.currentTarget.style.boxShadow = '0 10px 25px rgba(0, 255, 255, 0.5)';
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.transform = 'translateY(0)';
+        e.currentTarget.style.boxShadow = 'none';
+      }}
+    >
+      {/* Animated background effect */}
+      <div 
+        style={{
+          position: 'absolute',
+          top: '-50%',
+          left: '-50%',
+          width: '200%',
+          height: '200%',
+          background: 'linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent)',
+          transform: 'rotate(45deg)',
+          transition: 'all 0.5s',
+          opacity: 0,
+          pointerEvents: 'none'
+        }} 
+      />
+      
+      {/* Content */}
+      <div style={{ position: 'relative', zIndex: 1 }}>
+        <h3 style={{
+          color: '#00ffff',
+          marginBottom: '10px',
+          fontSize: '1.2rem',
+          fontWeight: '700',
+          margin: '0 0 10px 0'
+        }}>
+          {icon} {title}
+        </h3>
+        
+        <p style={{
+          color: '#cccccc',
+          fontSize: '0.9rem',
+          lineHeight: '1.4',
+          marginBottom: '20px',
+          margin: '0 0 20px 0'
+        }}>
+          {description}
+        </p>
+      </div>
+      
+      {/* START Button */}
+      <button 
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          onPlay();
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.background = 'linear-gradient(45deg, #f7931e, #ff6b35)';
+          e.currentTarget.style.transform = 'scale(1.1)';
+          e.currentTarget.style.boxShadow = '0 5px 15px rgba(255, 107, 53, 0.5)';
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.background = 'linear-gradient(45deg, #ff6b35, #f7931e)';
+          e.currentTarget.style.transform = 'scale(1)';
+          e.currentTarget.style.boxShadow = 'none';
+        }}
+        onMouseDown={(e) => {
+          e.currentTarget.style.transform = 'scale(0.95)';
+        }}
+        onMouseUp={(e) => {
+          e.currentTarget.style.transform = 'scale(1.1)';
+        }}
+        style={{
+          background: 'linear-gradient(45deg, #ff6b35, #f7931e)',
+          border: 'none',
+          color: 'white',
+          padding: '12px 24px',
+          borderRadius: '25px',
+          fontFamily: 'Orbitron, monospace',
+          fontWeight: '700',
+          fontSize: '1rem',
+          cursor: 'pointer',
+          transition: 'all 0.3s ease',
+          textTransform: 'uppercase',
+          letterSpacing: '0.05em',
+          position: 'relative',
+          zIndex: 2,
+          outline: 'none',
+          width: 'auto',
+          alignSelf: 'center'
+        }}
+      >
         {buttonText}
-      </PlayButton>
-    </Card>
+      </button>
+    </div>
   );
 };
 

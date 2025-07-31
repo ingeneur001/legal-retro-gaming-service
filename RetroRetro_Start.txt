@@ -1,5 +1,0 @@
-Terminal 1:
-node backend/server.js
-
-# Terminal 2: 
-cd frontend && npm start

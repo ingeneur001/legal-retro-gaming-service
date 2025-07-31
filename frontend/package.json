@@ -1,6 +1,7 @@
 {
   "name": "frontend",
   "version": "0.1.0",
+  "homepage": "https://ingeneur001.github.io/legal-retro-gaming-service",
   "private": true,
   "dependencies": {
     "@testing-library/dom": "^10.4.0",
