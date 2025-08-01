@@ -9,6 +9,8 @@ function Test-MyGamingSite {
     
     # Detaillierte HTTP-Pruefung
     Write-Host "1. HTTP-STATUS PRUEFUNG:" -ForegroundColor Magenta
+    $isOnline = $false
+    
     try {
         $response = Invoke-WebRequest -Uri $url -TimeoutSec 30
         
@@ -16,12 +18,7 @@ function Test-MyGamingSite {
         Write-Host "   Content-Length: $($response.Content.Length) Bytes" -ForegroundColor Green
         Write-Host "   Server: $($response.Headers.Server)" -ForegroundColor Green
         Write-Host "   Last-Modified: $($response.Headers.'Last-Modified')" -ForegroundColor Green
-        
-        # Site oeffnen
-        Write-Host ""
-        Write-Host "2. BROWSER OEFFNEN:" -ForegroundColor Magenta
-        Write-Host "   Oeffne dein Retro-Gaming-Portal..." -ForegroundColor Cyan
-        Start-Process $url
+        $isOnline = $true
         
     } catch {
         $statusCode = "Unbekannt"
@@ -58,6 +55,41 @@ function Test-MyGamingSite {
         Start-Sleep 2
         Write-Host "   Oeffne GitHub Actions..." -ForegroundColor Yellow  
         Start-Process "https://github.com/ingeneur001/legal-retro-gaming-service/actions"
+    }
+    
+    # Stabilitaets-Test nur wenn online
+    if ($isOnline) {
+        Write-Host ""
+        Write-Host "2. STABILITAETS-TEST:" -ForegroundColor Magenta
+        $successCount = 0
+        
+        for ($i = 1; $i -le 5; $i++) {
+            Write-Host "   Test $i/5: " -NoNewline
+            try {
+                $testResponse = Invoke-WebRequest -Uri $url -Method Head -TimeoutSec 10
+                Write-Host "Status $($testResponse.StatusCode) - OK" -ForegroundColor Green
+                $successCount++
+            } catch {
+                Write-Host "FEHLER: $($_.Exception.Message)" -ForegroundColor Red
+            }
+            if ($i -lt 5) { Start-Sleep 2 }
+        }
+        
+        Write-Host ""
+        Write-Host "   STABILITAET: $successCount/5 Tests erfolgreich" -ForegroundColor $(if ($successCount -eq 5) { "Green" } elseif ($successCount -ge 3) { "Yellow" } else { "Red" })
+        
+        if ($successCount -eq 5) {
+            Write-Host "   PERFEKT! Site laeuft stabil!" -ForegroundColor Green
+        } elseif ($successCount -ge 3) {
+            Write-Host "   WARNUNG: Gelegentliche Probleme erkannt" -ForegroundColor Yellow
+        } else {
+            Write-Host "   PROBLEM: Site ist instabil!" -ForegroundColor Red
+        }
+        
+        Write-Host ""
+        Write-Host "3. BROWSER OEFFNEN:" -ForegroundColor Magenta
+        Write-Host "   Oeffne dein Retro-Gaming-Portal..." -ForegroundColor Cyan
+        Start-Process $url
     }
     
     Write-Host ""
