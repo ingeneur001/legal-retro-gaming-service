@@ -10,7 +10,7 @@ import ConnectionStatus from './components/ConnectionStatus';
 import GamePlayer from './components/GamePlayer';
 
 // USER SYSTEM IMPORT - NEU!
-import { UserProvider } from './components/user/UserManager';
+import { UserProvider, UserManager } from './components/user/UserManager';
 
 // Global Styles für Retro-Gaming-Theme
 const GlobalStyle = createGlobalStyle`
@@ -274,6 +274,8 @@ const App: React.FC = () => {
 
             {activeNavItem === 'games' ? (
               <GamePlayer />
+            ) : activeNavItem === 'profile' ? (
+              <UserManager />
             ) : (
               <GameGrid games={gameData} />
             )}
@@ -283,7 +285,7 @@ const App: React.FC = () => {
                <div style={{color: '#ff0000', fontSize: '2rem', textAlign: 'center'}}>
                🔴 NEW LOGIC ACTIVE! 🔴
                </div>
-            ) : (
+            ) : activeNavItem === 'profile' ? null : (
                <GameGrid games={gameData} />
             )}
           </MainContent>
