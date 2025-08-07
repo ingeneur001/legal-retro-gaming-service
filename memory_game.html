@@ -8,9 +8,9 @@
         body {
             margin: 0;
             padding: 20px;
-            background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
+            background: linear-gradient(135deg, #f0f8ff, #e6f3ff, #cce7ff);
             font-family: 'Courier New', monospace;
-            color: #00ffff;
+            color: #2c5aa0;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -19,11 +19,11 @@
 
         .game-container {
             text-align: center;
-            background: rgba(0, 0, 0, 0.8);
-            border: 2px solid #00ffff;
+            background: rgba(255, 255, 255, 0.9);
+            border: 2px solid #4a90e2;
             border-radius: 15px;
             padding: 30px;
-            box-shadow: 0 0 30px rgba(0, 255, 255, 0.3);
+            box-shadow: 0 0 30px rgba(74, 144, 226, 0.3);
         }
 
         h1 {
@@ -41,17 +41,17 @@
         }
 
         .info-item {
-            background: rgba(0, 255, 255, 0.1);
+            background: rgba(74, 144, 226, 0.15);
             padding: 10px 20px;
-            border: 1px solid #00ffff;
+            border: 1px solid #4a90e2;
             border-radius: 8px;
         }
 
         canvas {
-            border: 3px solid #00ffff;
+            border: 3px solid #4a90e2;
             border-radius: 10px;
-            box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
-            background: #0a0a0a;
+            box-shadow: 0 0 20px rgba(74, 144, 226, 0.5);
+            background: #f8fbff;
             cursor: pointer;
         }
 
@@ -60,7 +60,7 @@
         }
 
         button {
-            background: linear-gradient(45deg, #ff6b9d, #ff8e8e);
+            background: linear-gradient(45deg, #4a90e2, #74b9ff);
             color: white;
             border: none;
             padding: 12px 25px;
@@ -70,12 +70,12 @@
             font-size: 16px;
             cursor: pointer;
             transition: all 0.3s;
-            box-shadow: 0 4px 15px rgba(255, 107, 157, 0.3);
+            box-shadow: 0 4px 15px rgba(74, 144, 226, 0.3);
         }
 
         button:hover {
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(255, 107, 157, 0.5);
+            box-shadow: 0 6px 20px rgba(74, 144, 226, 0.5);
         }
 
         .difficulty-selector {
@@ -92,8 +92,8 @@
         }
 
         .game-complete {
-            background: rgba(0, 255, 0, 0.1);
-            border: 2px solid #00ff00;
+            background: rgba(46, 204, 113, 0.15);
+            border: 2px solid #2ecc71;
             border-radius: 10px;
             padding: 20px;
             margin-top: 20px;
@@ -101,8 +101,8 @@
         }
 
         @keyframes pulse {
-            0%, 100% { box-shadow: 0 0 20px rgba(0, 255, 0, 0.3); }
-            50% { box-shadow: 0 0 30px rgba(0, 255, 0, 0.6); }
+            0%, 100% { box-shadow: 0 0 20px rgba(46, 204, 113, 0.3); }
+            50% { box-shadow: 0 0 30px rgba(46, 204, 113, 0.6); }
         }
     </style>
 </head>
@@ -166,13 +166,13 @@
         
         // Colors
         const colors = {
-            background: '#0a0a0a',
-            cardBack: '#1a1a2e',
-            cardBorder: '#00ffff',
-            cardFlipped: '#16213e',
-            text: '#00ffff',
-            matched: '#00ff00',
-            highlight: '#ff6b9d'
+            background: '#f8fbff',
+            cardBack: '#e8f4fd',
+            cardBorder: '#4a90e2',
+            cardFlipped: '#ffffff',
+            text: '#2c5aa0',
+            matched: '#2ecc71',
+            highlight: '#e74c3c'
         };
 
         // Initialize game
