@@ -1,13 +1,13 @@
 {
   "files": {
     "main.css": "https://ingeneur001.github.io/legal-retro-gaming-service/static/css/main.df2beb19.css",
-    "main.js": "https://ingeneur001.github.io/legal-retro-gaming-service/static/js/main.056910df.js",
+    "main.js": "https://ingeneur001.github.io/legal-retro-gaming-service/static/js/main.28548529.js",
     "index.html": "https://ingeneur001.github.io/legal-retro-gaming-service/index.html",
     "main.df2beb19.css.map": "https://ingeneur001.github.io/legal-retro-gaming-service/static/css/main.df2beb19.css.map",
-    "main.056910df.js.map": "https://ingeneur001.github.io/legal-retro-gaming-service/static/js/main.056910df.js.map"
+    "main.28548529.js.map": "https://ingeneur001.github.io/legal-retro-gaming-service/static/js/main.28548529.js.map"
   },
   "entrypoints": [
     "static/css/main.df2beb19.css",
-    "static/js/main.056910df.js"
+    "static/js/main.28548529.js"
   ]
 }
